@@ -1,390 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-Powered Multi-Syllabus Exam Generator</title>
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --border: #e2e8f0;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; gap: 20px; max-width: 1500px; margin: 0 auto; }
-
-    .controls { flex: 1; max-width: 380px; background: var(--card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 20px; }
-    .controls h2 { font-size: 1.25rem; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
-    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: #fff; }
-
-    .api-card { background: #fef3c7; border: 1px solid #fde047; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
-    .api-card label { font-size: 0.8rem; font-weight: bold; color: #854d0e; display: block; margin-bottom: 4px; }
-    .api-card input { font-size: 0.8rem; font-family: monospace; }
-
-    .timer-card { background: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 8px; text-align: center; margin: 20px 0; }
-    .timer-display { font-size: 2rem; font-weight: 700; font-family: monospace; color: var(--primary); margin: 6px 0; }
-
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-bottom: 10px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
-    .btn-print { background: #059669; color: white; }
-
-    .preview-container { flex: 2; display: flex; flex-direction: column; align-items: center; gap: 30px; background: #cbd5e1; padding: 20px; border-radius: 12px; overflow-y: auto; max-height: calc(100vh - 40px); }
-    .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 20mm; border-radius: 4px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-
-    .paper-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
-    .logo-preview { max-height: 60px; max-width: 140px; object-fit: contain; }
-    .header-text { text-align: center; flex: 1; margin: 0 12px; }
-    .header-text h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .header-text h3 { font-size: 0.9rem; font-weight: 500; color: #334155; margin-top: 2px; }
-
-    .meta-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; border: 1px solid #000; padding: 8px 12px; font-size: 0.85rem; margin-bottom: 20px; }
-
-    .section-title { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; background: #f1f5f9; padding: 6px 10px; margin: 16px 0 12px 0; border-left: 4px solid #000; }
-    .question-item { margin-bottom: 18px; font-size: 0.92rem; line-height: 1.5; page-break-inside: avoid; }
-    .question-head { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 4px; }
-    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; padding-left: 18px; }
-    .answer-lines { border-bottom: 1px dashed #cbd5e1; min-height: 40px; margin-top: 8px; }
-    .passage-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; font-style: italic; margin-bottom: 14px; font-size: 0.9rem; line-height: 1.6; }
-
-    .page-footer { text-align: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-
-    .loading-overlay { display: none; text-align: center; padding: 40px; font-weight: bold; color: var(--primary); }
-
-    @media print {
-      body { padding: 0; background: white; }
-      .controls { display: none !important; }
-      .preview-container { padding: 0; background: white; overflow: visible; max-height: none; gap: 0; }
-      .a4-page { box-shadow: none; border-radius: 0; width: 100%; padding: 15mm; margin: 0; page-break-after: always; min-height: 297mm; }
-      .a4-page:last-child { page-break-after: auto; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interactive Exam Generator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; background: white; padding: 30px; margin: 0 auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-top: 0; }
+        .config-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; background: #eef2f5; padding: 20px; border-radius: 8px; }
+        input, select, button { padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
+        button { background: #3498db; color: white; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
+        button:hover { background: #2980b9; }
+        .question-card { background: #fafafa; border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .options { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .option-btn { background: white; border: 1px solid #ddd; text-align: left; cursor: pointer; color: #333; }
+        .option-btn:hover { background: #e3f2fd; }
+        .selected { background: #bbdefb; border-color: #2196f3; font-weight: bold; }
+        .correct { background: #c8e6c9 !important; border-color: #4caf50 !important; color: #2e7d32; }
+        .wrong { background: #ffcdd2 !important; border-color: #f44336 !important; color: #c62828; }
+        #score-box { font-size: 20px; font-weight: bold; margin-top: 20px; text-align: center; display: none; }
+        @media print {
+            .config-panel, button, #submit-btn { display: none !important; }
+            body { background: white; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; padding: 0; }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="controls">
-    <h2>AI Exam Setup Controls</h2>
-
-    <!-- Gemini API Key Input -->
-    <div class="api-card">
-      <label>Google Gemini API Key</label>
-      <input type="password" id="apiKey" placeholder="Paste your AI API Key here" onchange="saveApiKey()">
-      <span style="font-size:0.7rem; color:#713f12;">Get a free key from Google AI Studio.</span>
-    </div>
-
-    <div class="form-group">
-      <label>School / Institution Name</label>
-      <input type="text" id="schoolName" value="Oakridge Primary Academy" oninput="renderApp()">
-    </div>
-
-    <div class="form-group">
-      <label>Upload Logo</label>
-      <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(event)">
-    </div>
-
-    <div class="form-group">
-      <label>Subject / Exam Mode</label>
-      <select id="subject" onchange="onSubjectChange()">
-        <option value="Combined">Combined All Subjects (1-Hour Master Exam)</option>
-        <option value="Mathematics">Mathematics (3-Page Exam)</option>
-        <option value="Science">Science & Environment (3-Page Exam)</option>
-        <option value="English">English Language & Reading (3-Page Exam)</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Syllabus Standard</label>
-      <select id="syllabus">
-        <option value="CBSE">CBSE Standard</option>
-        <option value="ICSE">ICSE Standard</option>
-        <option value="British Curriculum (KS2)">British Curriculum (KS2)</option>
-        <option value="IB Primary Years (PYP)">IB Primary Years (PYP)</option>
-      </select>
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-      <div class="form-group" style="flex:1;">
-        <label>Grade Level</label>
-        <select id="grade">
-          <option value="3">Grade 3</option>
-          <option value="4" selected>Grade 4</option>
+<div class="container">
+    <h1>📝 Interactive Exam Generator</h1>
+    
+    <div class="config-panel">
+        <input type="password" id="apiKey" placeholder="Enter your Gemini API Key">
+        <input type="text" id="topic" placeholder="Exam Subject / Topic (e.g., Grade 4 British Science)">
+        <select id="numQuestions">
+            <option value="3">3 Questions</option>
+            <option value="5">5 Questions</option>
+            <option value="10">10 Questions</option>
         </select>
-      </div>
-
-      <div class="form-group" style="flex:1;">
-        <label>Difficulty</label>
-        <select id="difficulty">
-          <option value="Easy">Easy</option>
-          <option value="Medium" selected>Medium</option>
-          <option value="Hard (Complex Problems)">Hard / Complex</option>
-        </select>
-      </div>
+        <button onclick="generateExam()">Generate Interactive Exam</button>
     </div>
 
-    <div class="timer-card">
-      <label style="font-size: 0.8rem; font-weight: bold; color: #1e40af;">EXAM TIMER</label>
-      <div class="timer-display" id="timerDisplay">60:00</div>
-      <div style="display: flex; gap: 8px;">
-        <button class="btn btn-secondary" onclick="toggleTimer()" id="timerBtn" style="margin: 0;">Start Timer</button>
-        <button class="btn btn-secondary" onclick="resetTimer()" style="margin: 0;">Reset</button>
-      </div>
-    </div>
+    <div id="exam-container"></div>
+    <button id="submit-btn" style="display:none; width:100%;" onclick="gradeExam()">Submit Exam</button>
+    <div id="score-box"></div>
+</div>
 
-    <button class="btn btn-primary" id="generateBtn" onclick="generateAIExam()">✨ Generate AI Exam Paper</button>
-    <button class="btn btn-print" onclick="window.print()">🖨️ Download PDF / Print (3 Pages)</button>
-  </div>
+<script>
+let currentQuestions = [];
+let userAnswers = {};
 
-  <div class="preview-container" id="pagesContainer">
-    <div class="a4-page" style="justify-content:center; align-items:center;">
-      <p style="color:#64748b;">Paste your Gemini API key on the left and click <strong>"✨ Generate AI Exam Paper"</strong> to create a completely unique exam.</p>
-    </div>
-  </div>
+async function generateExam() {
+    const apiKey = document.getElementById('apiKey').value;
+    const topic = document.getElementById('topic').value || "Grade 4 Mathematics and Science";
+    const count = document.getElementById('numQuestions').value;
+    const container = document.getElementById('exam-container');
+    
+    if (!apiKey) return alert("Please enter a valid Gemini API Key.");
 
-  <script>
-    let logoDataUrl = "";
-    let timerInterval = null;
-    let timerSeconds = 3600;
-    let isTimerRunning = false;
-    let generatedPagesData = [];
+    container.innerHTML = "<p>⏳ Generating custom interactive exam with Gemini...</p>";
+    document.getElementById('submit-btn').style.display = "none";
+    document.getElementById('score-box').style.display = "none";
 
-    // Load saved API key from localStorage if available
-    document.getElementById('apiKey').value = localStorage.getItem('gemini_api_key') || '';
-
-    function saveApiKey() {
-      const key = document.getElementById('apiKey').value.trim();
-      localStorage.setItem('gemini_api_key', key);
-    }
-
-    function handleLogoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          logoDataUrl = e.target.result;
-          if (generatedPagesData.length > 0) renderApp();
-        };
-        reader.readAsDataURL(file);
+    const prompt = `Generate a JSON array of ${count} multiple choice questions about '${topic}'.
+    Format strictly as JSON without markdown code blocks:
+    [
+      {
+        "question": "Question text here?",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "answerIndex": 0
       }
-    }
+    ]`;
 
-    function onSubjectChange() {
-      const subj = document.getElementById('subject').value;
-      timerSeconds = subj === "Combined" ? 3600 : 2700;
-      resetTimer();
-    }
-
-    // Call Gemini API to generate genuine, novel questions
-    async function generateAIExam() {
-      const apiKey = document.getElementById('apiKey').value.trim();
-      if (!apiKey) {
-        alert("Please paste a valid Google Gemini API Key in the setup panel.");
-        return;
-      }
-
-      const btn = document.getElementById('generateBtn');
-      const container = document.getElementById('pagesContainer');
-      btn.disabled = true;
-      btn.innerText = "⏳ AI is generating exam...";
-      container.innerHTML = '<div class="a4-page" style="justify-content:center; align-items:center;"><p style="font-size:1.2rem; font-weight:bold; color:#2563eb;">Generating authentic exam questions via AI... Please wait ~10 seconds.</p></div>';
-
-      const subj = document.getElementById('subject').value;
-      const syl = document.getElementById('syllabus').value;
-      const gr = document.getElementById('grade').value;
-      const diff = document.getElementById('difficulty').value;
-
-      const prompt = `You are a professional primary school examination board officer. Generate a 3-page assessment paper for Grade ${gr} following the ${syl} syllabus at ${diff} difficulty level.
-Subject mode: ${subj}.
-
-RETURN ONLY VALID RAW JSON without any markdown code blocks or backticks. The JSON structure must strictly follow this exact format:
-
-[
-  {
-    "pageNo": 1,
-    "sectionTitle": "Page 1 Section Title",
-    "questions": [
-      {
-        "type": "passage", 
-        "text": "Comprehension passage text if English/Combined, otherwise omit this question object"
-      },
-      {
-        "type": "mcq",
-        "q": "Unique question statement",
-        "opts": ["Option A", "Option B", "Option C", "Option D"],
-        "m": 2
-      },
-      {
-        "type": "short",
-        "q": "Unique short answer question or calculation",
-        "m": 4
-      },
-      {
-        "type": "word",
-        "q": "Complex word problem, multi-step inquiry, or creative writing task",
-        "m": 5
-      }
-    ]
-  },
-  {
-    "pageNo": 2,
-    "sectionTitle": "Page 2 Section Title",
-    "questions": [...]
-  },
-  {
-    "pageNo": 3,
-    "sectionTitle": "Page 3 Section Title",
-    "questions": [...]
-  }
-]
-
-Requirements:
-- Make every question unique, varied, realistic, and strictly tailored to ${syl} standards for Grade ${gr}.
-- Do NOT repeat similar question structures. Include word problems, logic puzzles, scientific working/experiments, and varied grammar or reading tasks.
-- Exactly 3 pages in total. Provide 5 to 6 questions per page.`;
-
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-          })
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
         const data = await response.json();
         let rawText = data.candidates[0].content.parts[0].text;
         
-        // Clean markdown backticks if AI included them
+        // Clean markdown formatting if present
         rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        generatedPagesData = JSON.parse(rawText);
-        renderApp();
-      } catch (err) {
-        console.error(err);
-        alert("Failed to generate exam paper. Please check your API key and try again.");
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "✨ Generate AI Exam Paper";
-      }
+        currentQuestions = JSON.parse(rawText);
+        
+        renderExam();
+    } catch (err) {
+        container.innerHTML = `<p style="color:red;">Error generating exam: ${err.message}</p>`;
     }
+}
 
-    function renderApp() {
-      const container = document.getElementById('pagesContainer');
-      container.innerHTML = '';
+function renderExam() {
+    const container = document.getElementById('exam-container');
+    container.innerHTML = '';
+    userAnswers = {};
 
-      const schoolName = document.getElementById('schoolName').value || 'Primary Academy';
-      const subj = document.getElementById('subject').value;
-      const gr = document.getElementById('grade').value;
-      const syl = document.getElementById('syllabus').value;
-      const diff = document.getElementById('difficulty').value;
-      const defaultLogo = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>";
-
-      generatedPagesData.forEach((pageData) => {
-        const pageEl = document.createElement('div');
-        pageEl.className = 'a4-page';
-
-        let pageHtml = `
-          <div>
-            <div class="paper-header">
-              <img class="logo-preview" src="${logoDataUrl || defaultLogo}" alt="Logo">
-              <div class="header-text">
-                <h1>${schoolName}</h1>
-                <h3>${subj === 'Combined' ? '1-Hour Master Evaluation Paper' : subj + ' Master Assessment'}</h3>
-              </div>
-              <div style="width:60px;"></div>
+    currentQuestions.forEach((q, index) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question-card';
+        qDiv.innerHTML = `
+            <h3>Q${index + 1}. ${q.question}</h3>
+            <div class="options">
+                ${q.options.map((opt, oIdx) => `
+                    <button class="option-btn" id="q${index}_opt${oIdx}" onclick="selectAnswer(${index}, ${oIdx})">
+                        ${String.fromCharCode(65 + oIdx)}. ${opt}
+                    </button>
+                `).join('')}
             </div>
-
-            <div class="meta-grid">
-              <div><strong>Student Name:</strong> ___________________________</div>
-              <div><strong>Date:</strong> ______________</div>
-              <div><strong>Grade:</strong> Grade ${gr} | <strong>Syllabus:</strong> ${syl}</div>
-              <div><strong>Time Allowed:</strong> ${subj === 'Combined' ? '60 Mins' : '45 Mins'}</div>
-            </div>
-
-            <div class="section-title">${pageData.sectionTitle}</div>
         `;
+        container.appendChild(qDiv);
+    });
 
-        pageData.questions.forEach((q, idx) => {
-          if (q.type === 'passage') {
-            pageHtml += `<div class="passage-box"><strong>Reading Passage:</strong><br>"${q.text}"</div>`;
-          } else {
-            pageHtml += `
-              <div class="question-item">
-                <div class="question-head">
-                  <span>Q${idx + 1}. ${q.q}</span>
-                  <span>[${q.m} Marks]</span>
-                </div>
-            `;
+    document.getElementById('submit-btn').style.display = "block";
+}
 
-            if (q.type === 'mcq' && q.opts) {
-              pageHtml += `<div class="options-grid">
-                ${q.opts.map((opt, i) => `<div>(${String.fromCharCode(65 + i)}) ${opt}</div>`).join('')}
-              </div>`;
-            } else if (q.type === 'short') {
-              pageHtml += `<div class="answer-lines"></div>`;
-            } else {
-              pageHtml += `<div class="answer-lines" style="min-height:75px;"></div>`;
+function selectAnswer(qIdx, optIdx) {
+    userAnswers[qIdx] = optIdx;
+    
+    // Highlight active selection
+    const buttons = document.querySelectorAll(`#q${qIdx}_opt0, #q${qIdx}_opt1, #q${qIdx}_opt2, #q${qIdx}_opt3`);
+    buttons.forEach((btn, idx) => {
+        btn.classList.toggle('selected', idx === optIdx);
+    });
+}
+
+function gradeExam() {
+    let score = 0;
+    currentQuestions.forEach((q, index) => {
+        const selected = userAnswers[index];
+        const correct = q.answerIndex;
+
+        currentQuestions[index].options.forEach((_, optIdx) => {
+            const btn = document.getElementById(`q${index}_opt${optIdx}`);
+            btn.disabled = true;
+            
+            if (optIdx === correct) {
+                btn.classList.add('correct');
             }
-
-            pageHtml += `</div>`;
-          }
+            if (selected === optIdx && selected !== correct) {
+                btn.classList.add('wrong');
+            }
         });
 
-        pageHtml += `
-          </div>
-          <div class="page-footer">
-            Page ${pageData.pageNo} of 3 — ${schoolName} • Grade ${gr} ${syl}
-          </div>
-        `;
+        if (selected === correct) score++;
+    });
 
-        pageEl.innerHTML = pageHtml;
-        container.appendChild(pageEl);
-      });
-    }
+    const scoreBox = document.getElementById('score-box');
+    scoreBox.style.display = "block";
+    scoreBox.innerHTML = `Final Score: ${score} / ${currentQuestions.length}`;
+}
+</script>
 
-    // Timer Engine
-    function updateTimerDisplay() {
-      const mins = Math.floor(timerSeconds / 60);
-      const secs = timerSeconds % 60;
-      document.getElementById('timerDisplay').innerText = 
-        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function toggleTimer() {
-      const btn = document.getElementById('timerBtn');
-      if (isTimerRunning) {
-        clearInterval(timerInterval);
-        btn.innerText = "Start Timer";
-      } else {
-        timerInterval = setInterval(() => {
-          if (timerSeconds > 0) {
-            timerSeconds--;
-            updateTimerDisplay();
-          } else {
-            clearInterval(timerInterval);
-            alert("Exam Time Completed!");
-          }
-        }, 1000);
-        btn.innerText = "Pause Timer";
-      }
-      isTimerRunning = !isTimerRunning;
-    }
-
-    function resetTimer() {
-      clearInterval(timerInterval);
-      isTimerRunning = false;
-      const subj = document.getElementById('subject').value;
-      timerSeconds = subj === "Combined" ? 3600 : 2700;
-      document.getElementById('timerBtn').innerText = "Start Timer";
-      updateTimerDisplay();
-    }
-  </script>
 </body>
 </html>
