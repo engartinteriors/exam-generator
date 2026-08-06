@@ -5,46 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Interactive Exam Generator</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 800px; background: white; padding: 30px; margin: 0 auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; margin-top: 0; }
-        .config-panel { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; background: #eef2f5; padding: 20px; border-radius: 8px; }
-        input, select, button { padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
-        button { background: #3498db; color: white; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
-        button:hover { background: #2980b9; }
-        .question-card { background: #fafafa; border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .options { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .option-btn { background: white; border: 1px solid #ddd; text-align: left; cursor: pointer; color: #333; }
-        .option-btn:hover { background: #e3f2fd; }
-        .selected { background: #bbdefb; border-color: #2196f3; font-weight: bold; }
-        .correct { background: #c8e6c9 !important; border-color: #4caf50 !important; color: #2e7d32; }
-        .wrong { background: #ffcdd2 !important; border-color: #f44336 !important; color: #c62828; }
-        #score-box { font-size: 20px; font-weight: bold; margin-top: 20px; text-align: center; display: none; }
-        @media print {
-            .config-panel, button, #submit-btn { display: none !important; }
-            body { background: white; }
-            .container { box-shadow: none; width: 100%; max-width: 100%; padding: 0; }
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --border: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 20px; }
+        
+        .container { max-width: 850px; background: var(--card); padding: 30px; margin: 0 auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+        h1 { color: #1e293b; margin-bottom: 20px; text-align: center; font-size: 1.8rem; }
+        
+        .config-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 25px; background: #f1f5f9; padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+        .full-width { grid-column: span 2; }
+        
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        input, select, button { width: 100%; padding: 12px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 8px; background: white; }
+        input:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+        button.btn-gen { background: var(--primary); color: white; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; padding: 14px; font-size: 1rem; margin-top: 10px; }
+        button.btn-gen:hover { background: var(--primary-hover); }
+        button.btn-gen:disabled { background: #93c5fd; cursor: not-allowed; }
+
+        .question-card { background: #ffffff; border: 1px solid var(--border); border-left: 5px solid var(--primary); padding: 18px; margin-bottom: 20px; border-radius: 8px; }
+        .question-card h3 { font-size: 1.05rem; color: #1e293b; margin-bottom: 12px; }
+        
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option-btn { background: #f8fafc; border: 1px solid var(--border); text-align: left; cursor: pointer; color: #334155; border-radius: 6px; padding: 10px 14px; font-size: 0.95rem; transition: background 0.15s; }
+        .option-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+        .selected { background: #dbeafe !important; border-color: var(--primary) !important; font-weight: 600; color: #1e40af; }
+        .correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; font-weight: 600; }
+        .wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+
+        #submit-btn { background: #059669; color: white; font-weight: 700; cursor: pointer; border: none; padding: 14px; font-size: 1rem; border-radius: 8px; margin-top: 10px; display: none; }
+        #submit-btn:hover { background: #047857; }
+
+        #score-box { font-size: 1.25rem; font-weight: 700; margin-top: 20px; text-align: center; padding: 15px; background: #e0f2fe; color: #0369a1; border-radius: 8px; border: 1px solid #bae6fd; display: none; }
+        
+        @media (max-width: 600px) {
+            .config-panel { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📝 Interactive Exam Generator</h1>
+    <h1>📝 Interactive AI Exam Generator</h1>
     
     <div class="config-panel">
-        <input type="password" id="apiKey" placeholder="Enter your Gemini API Key">
-        <input type="text" id="topic" placeholder="Exam Subject / Topic (e.g., Grade 4 British Science)">
-        <select id="numQuestions">
-            <option value="3">3 Questions</option>
-            <option value="5">5 Questions</option>
-            <option value="10">10 Questions</option>
-        </select>
-        <button onclick="generateExam()">Generate Interactive Exam</button>
+        <div class="full-width">
+            <label for="apiKey">Gemini API Key</label>
+            <input type="password" id="apiKey" value="AQ.Ab8RN6ImTVdcUuIwW28Ec6-CwZDeFViyQletaPX-YnFJBEIO9Q">
+        </div>
+
+        <div>
+            <label for="subject">Subject / Topic</label>
+            <select id="subject">
+                <option value="Mathematics" selected>Mathematics</option>
+                <option value="Science & Environment">Science & Environment</option>
+                <option value="English Language & Grammar">English Language & Grammar</option>
+                <option value="Geography & History">Geography & History</option>
+                <option value="General Knowledge & Logic">General Knowledge & Logic</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="grade">Grade Level</label>
+            <select id="grade">
+                <option value="Grade 1">Grade 1</option>
+                <option value="Grade 2">Grade 2</option>
+                <option value="Grade 3">Grade 3</option>
+                <option value="Grade 4" selected>Grade 4</option>
+                <option value="Grade 5">Grade 5</option>
+                <option value="Grade 6">Grade 6</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="syllabus">Syllabus Standard</label>
+            <select id="syllabus">
+                <option value="British Curriculum (KS2)" selected>British Curriculum (KS2)</option>
+                <option value="CBSE Standard">CBSE Standard</option>
+                <option value="ICSE Standard">ICSE Standard</option>
+                <option value="IB Primary Years (PYP)">IB Primary Years (PYP)</option>
+                <option value="US Common Core">US Common Core</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="difficulty">Difficulty Level</label>
+            <select id="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard (Complex Problems)">Hard / Complex</option>
+            </select>
+        </div>
+
+        <div class="full-width">
+            <label for="numQuestions">Number of Questions</label>
+            <select id="numQuestions">
+                <option value="3">3 Questions</option>
+                <option value="5" selected>5 Questions</option>
+                <option value="10">10 Questions</option>
+            </select>
+        </div>
+
+        <div class="full-width">
+            <button class="btn-gen" id="genBtn" onclick="generateExam()">✨ Generate New Interactive Exam</button>
+        </div>
     </div>
 
     <div id="exam-container"></div>
-    <button id="submit-btn" style="display:none; width:100%;" onclick="gradeExam()">Submit Exam</button>
+    <button id="submit-btn" onclick="gradeExam()">Submit & Score Exam</button>
     <div id="score-box"></div>
 </div>
 
@@ -53,44 +130,65 @@ let currentQuestions = [];
 let userAnswers = {};
 
 async function generateExam() {
-    const apiKey = document.getElementById('apiKey').value;
-    const topic = document.getElementById('topic').value || "Grade 4 Mathematics and Science";
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const subject = document.getElementById('subject').value;
+    const grade = document.getElementById('grade').value;
+    const syllabus = document.getElementById('syllabus').value;
+    const difficulty = document.getElementById('difficulty').value;
     const count = document.getElementById('numQuestions').value;
+    
     const container = document.getElementById('exam-container');
+    const genBtn = document.getElementById('genBtn');
     
     if (!apiKey) return alert("Please enter a valid Gemini API Key.");
 
-    container.innerHTML = "<p>⏳ Generating custom interactive exam with Gemini...</p>";
+    genBtn.disabled = true;
+    genBtn.innerText = "⏳ Generating unique questions...";
+    container.innerHTML = "<p style='text-align:center; padding:30px; font-weight:600; color:#2563eb;'>Generating live questions with Gemini AI... Please wait.</p>";
     document.getElementById('submit-btn').style.display = "none";
     document.getElementById('score-box').style.display = "none";
 
-    const prompt = `Generate a JSON array of ${count} multiple choice questions about '${topic}'.
-    Format strictly as JSON without markdown code blocks:
+    const topicDescription = `${subject} for ${grade} (${syllabus} syllabus) at ${difficulty} difficulty`;
+
+    const prompt = `Generate a JSON array of ${count} unique, non-repeating multiple choice questions covering ${topicDescription}.
+    Format strictly as RAW JSON without markdown code blocks or backticks:
     [
       {
-        "question": "Question text here?",
+        "question": "Clear, specific question text here?",
         "options": ["Option A", "Option B", "Option C", "Option D"],
         "answerIndex": 0
       }
     ]`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
         const data = await response.json();
+
+        if (data.error) {
+            throw new Error(`API Error ${data.error.code}: ${data.error.message}`);
+        }
+
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new Error("No response generated by Gemini. Please try again.");
+        }
+
         let rawText = data.candidates[0].content.parts[0].text;
         
-        // Clean markdown formatting if present
+        // Clean markdown backticks if present in output
         rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
         currentQuestions = JSON.parse(rawText);
         
         renderExam();
     } catch (err) {
-        container.innerHTML = `<p style="color:red;">Error generating exam: ${err.message}</p>`;
+        container.innerHTML = `<p style="color:#ef4444; font-weight:bold; text-align:center; padding:20px;">Error generating exam: ${err.message}</p>`;
+    } finally {
+        genBtn.disabled = false;
+        genBtn.innerText = "✨ Generate New Interactive Exam";
     }
 }
 
@@ -151,7 +249,7 @@ function gradeExam() {
 
     const scoreBox = document.getElementById('score-box');
     scoreBox.style.display = "block";
-    scoreBox.innerHTML = `Final Score: ${score} / ${currentQuestions.length}`;
+    scoreBox.innerHTML = `Final Score: ${score} / ${currentQuestions.length} (${Math.round((score / currentQuestions.length) * 100)}%)`;
 }
 </script>
 
