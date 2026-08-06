@@ -59,8 +59,8 @@
     
     <div class="config-panel">
         <div class="full-width">
-            <label for="apiKey">Gemini API Key</label>
-            <input type="password" id="apiKey" value="AQ.Ab8RN6ImTVdcUuIwW28Ec6-CwZDeFViyQletaPX-YnFJBEIO9Q">
+            <label for="apiKey">Gemini API Key (Saved Automatically in Browser)</label>
+            <input type="password" id="apiKey" placeholder="Paste your Gemini API Key here once" onchange="saveApiKey()">
         </div>
 
         <div>
@@ -129,7 +129,24 @@
 let currentQuestions = [];
 let userAnswers = {};
 
+// Automatically load stored API key when page loads
+window.addEventListener('DOMContentLoaded', () => {
+    const savedKey = localStorage.getItem('gemini_api_key');
+    if (savedKey) {
+        document.getElementById('apiKey').value = savedKey;
+    }
+});
+
+// Explicitly save key whenever modified
+function saveApiKey() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (apiKey) {
+        localStorage.setItem('gemini_api_key', apiKey);
+    }
+}
+
 async function generateExam() {
+    saveApiKey(); // Auto-save on click
     const apiKey = document.getElementById('apiKey').value.trim();
     const subject = document.getElementById('subject').value;
     const grade = document.getElementById('grade').value;
@@ -178,8 +195,6 @@ async function generateExam() {
         }
 
         let rawText = data.candidates[0].content.parts[0].text;
-        
-        // Clean markdown backticks if present in output
         rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
         currentQuestions = JSON.parse(rawText);
         
@@ -218,8 +233,6 @@ function renderExam() {
 
 function selectAnswer(qIdx, optIdx) {
     userAnswers[qIdx] = optIdx;
-    
-    // Highlight active selection
     const buttons = document.querySelectorAll(`#q${qIdx}_opt0, #q${qIdx}_opt1, #q${qIdx}_opt2, #q${qIdx}_opt3`);
     buttons.forEach((btn, idx) => {
         btn.classList.toggle('selected', idx === optIdx);
