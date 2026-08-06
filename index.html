@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Paper Generator</title>
+  <title>Advanced Multi-Syllabus Exam Generator</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -15,10 +15,10 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; gap: 20px; max-width: 1500px; margin: 0 auto; }
 
     /* App Sidebar Controls */
-    .controls { flex: 1; max-width: 380px; background: var(--card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .controls { flex: 1; max-width: 380px; background: var(--card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 20px; }
     .controls h2 { font-size: 1.25rem; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
@@ -33,44 +33,49 @@
     .btn-secondary { background: #e2e8f0; color: #334155; }
     .btn-print { background: #059669; color: white; }
 
-    /* A4 Preview Canvas */
-    .preview-container { flex: 2; display: flex; justify-content: center; background: #cbd5e1; padding: 20px; border-radius: 12px; overflow-y: auto; max-height: calc(100vh - 40px); }
-    .a4-paper { background: white; width: 210mm; min-height: 297mm; padding: 20mm; border-radius: 4px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; }
+    /* Multi-Page Canvas */
+    .preview-container { flex: 2; display: flex; flex-direction: column; align-items: center; gap: 30px; background: #cbd5e1; padding: 20px; border-radius: 12px; overflow-y: auto; max-height: calc(100vh - 40px); }
+    
+    .a4-page { background: white; width: 210mm; min-height: 297mm; padding: 20mm; border-radius: 4px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
 
     /* Header / Letterhead */
     .paper-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
     .logo-preview { max-height: 60px; max-width: 140px; object-fit: contain; }
     .header-text { text-align: center; flex: 1; margin: 0 12px; }
-    .header-text h1 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .header-text h3 { font-size: 0.95rem; font-weight: 500; color: #334155; margin-top: 2px; }
+    .header-text h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-text h3 { font-size: 0.9rem; font-weight: 500; color: #334155; margin-top: 2px; }
 
     .meta-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; border: 1px solid #000; padding: 8px 12px; font-size: 0.85rem; margin-bottom: 20px; }
 
     /* Question Formatting */
-    .section-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; background: #f1f5f9; padding: 4px 8px; margin: 16px 0 10px 0; border-left: 4px solid #000; }
-    .question-item { margin-bottom: 16px; font-size: 0.95rem; line-height: 1.5; page-break-inside: avoid; }
-    .question-head { display: flex; justify-content: space-between; font-weight: 600; }
-    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; padding-left: 18px; }
-    .answer-space { border-bottom: 1px dashed #cbd5e1; min-height: 45px; margin-top: 8px; }
+    .section-title { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; background: #f1f5f9; padding: 6px 10px; margin: 16px 0 12px 0; border-left: 4px solid #000; }
+    .question-item { margin-bottom: 18px; font-size: 0.92rem; line-height: 1.5; page-break-inside: avoid; }
+    .question-head { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 4px; }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; padding-left: 18px; }
+    .answer-lines { border-bottom: 1px dashed #cbd5e1; min-height: 40px; margin-top: 8px; }
+    .passage-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; font-style: italic; margin-bottom: 14px; font-size: 0.9rem; line-height: 1.6; }
 
-    /* Print Specific Engine Rules */
+    .page-footer { text-align: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+
+    /* Print Specific Rules */
     @media print {
       body { padding: 0; background: white; }
       .controls { display: none !important; }
-      .preview-container { padding: 0; background: white; overflow: visible; max-height: none; }
-      .a4-paper { box-shadow: none; border-radius: 0; width: 100%; padding: 0; margin: 0; }
+      .preview-container { padding: 0; background: white; overflow: visible; max-height: none; gap: 0; }
+      .a4-page { box-shadow: none; border-radius: 0; width: 100%; padding: 15mm; margin: 0; page-break-after: always; min-height: 297mm; }
+      .a4-page:last-child { page-break-after: auto; }
     }
   </style>
 </head>
 <body>
 
-  <!-- App Controls -->
+  <!-- Controls Panel -->
   <div class="controls">
-    <h2>Paper Generator Controls</h2>
+    <h2>Exam Setup Controls</h2>
 
     <div class="form-group">
       <label>School / Institution Name</label>
-      <input type="text" id="schoolName" value="Oakridge Primary Academy" oninput="renderPaper()">
+      <input type="text" id="schoolName" value="Oakridge Primary Academy" oninput="renderApp()">
     </div>
 
     <div class="form-group">
@@ -79,19 +84,29 @@
     </div>
 
     <div class="form-group">
+      <label>Subject / Exam Mode</label>
+      <select id="subject" onchange="onSubjectChange()">
+        <option value="Combined">Combined All Subjects (1-Hour Master Exam)</option>
+        <option value="Mathematics">Mathematics (3-Page Exam)</option>
+        <option value="Science">Science & Environment (3-Page Exam)</option>
+        <option value="English">English Language & Reading (3-Page Exam)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
       <label>Syllabus Standard</label>
-      <select id="syllabus" onchange="generateNewQuestions()">
-        <option value="cbse">CBSE Standard</option>
-        <option value="icse">ICSE Standard</option>
-        <option value="british">British Curriculum (KS2)</option>
-        <option value="ib">IB Primary Years (PYP)</option>
+      <select id="syllabus" onchange="generateFreshExam()">
+        <option value="CBSE">CBSE Standard</option>
+        <option value="ICSE">ICSE Standard</option>
+        <option value="British">British Curriculum (KS2)</option>
+        <option value="IB">IB Primary Years (PYP)</option>
       </select>
     </div>
 
     <div style="display: flex; gap: 10px;">
       <div class="form-group" style="flex:1;">
         <label>Grade Level</label>
-        <select id="grade" onchange="generateNewQuestions()">
+        <select id="grade" onchange="generateFreshExam()">
           <option value="3">Grade 3</option>
           <option value="4">Grade 4</option>
         </select>
@@ -99,125 +114,48 @@
 
       <div class="form-group" style="flex:1;">
         <label>Difficulty</label>
-        <select id="difficulty" onchange="generateNewQuestions()">
+        <select id="difficulty" onchange="generateFreshExam()">
           <option value="Easy">Easy</option>
           <option value="Medium" selected>Medium</option>
-          <option value="Hard">Hard</option>
+          <option value="Hard">Hard (Complex Problems)</option>
         </select>
       </div>
     </div>
 
-    <div class="form-group">
-      <label>Subject</label>
-      <select id="subject" onchange="generateNewQuestions()">
-        <option value="Mathematics">Mathematics</option>
-        <option value="Science">Science / Environmental Studies</option>
-        <option value="English">English Grammar & Usage</option>
-      </select>
-    </div>
-
-    <!-- Live Timer Card -->
+    <!-- Timer -->
     <div class="timer-card">
       <label style="font-size: 0.8rem; font-weight: bold; color: #1e40af;">EXAM TIMER</label>
-      <div class="timer-display" id="timerDisplay">30:00</div>
+      <div class="timer-display" id="timerDisplay">60:00</div>
       <div style="display: flex; gap: 8px;">
         <button class="btn btn-secondary" onclick="toggleTimer()" id="timerBtn" style="margin: 0;">Start Timer</button>
         <button class="btn btn-secondary" onclick="resetTimer()" style="margin: 0;">Reset</button>
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="generateNewQuestions()">🎲 Generate New Paper</button>
-    <button class="btn btn-print" onclick="window.print()">🖨️ Download PDF / Print</button>
+    <button class="btn btn-primary" onclick="generateFreshExam()">🎲 Generate New Unique Exam</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Download PDF / Print (3 Pages)</button>
   </div>
 
-  <!-- Printable A4 Paper Preview Container -->
-  <div class="preview-container">
-    <div class="a4-paper" id="paperContent">
-      <div>
-        <div class="paper-header">
-          <img id="paperLogo" class="logo-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>" alt="Logo">
-          <div class="header-text">
-            <h1 id="paperSchool">Oakridge Primary Academy</h1>
-            <h3 id="paperTitle">Term Evaluation Question Paper</h3>
-          </div>
-          <div style="width: 60px;"></div>
-        </div>
-
-        <div class="meta-grid">
-          <div><strong>Student Name:</strong> ___________________________</div>
-          <div><strong>Date:</strong> ______________</div>
-          <div><strong>Subject:</strong> <span id="metaSubject">Mathematics</span> | <strong>Grade:</strong> <span id="metaGrade">3</span></div>
-          <div><strong>Time Allowed:</strong> <span id="metaTime">30 Mins</span></div>
-          <div><strong>Syllabus:</strong> <span id="metaSyllabus">CBSE</span></div>
-          <div><strong>Total Marks:</strong> 25 Marks</div>
-        </div>
-
-        <div id="questionContainer"></div>
-      </div>
-
-      <div style="text-align: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px;">
-        Page 1 of 1 — Confidential Exam Assessment Paper
-      </div>
-    </div>
+  <!-- 3-Page Preview Canvas -->
+  <div class="preview-container" id="pagesContainer">
+    <!-- Pages rendered dynamically -->
   </div>
 
   <script>
     let logoDataUrl = "";
     let timerInterval = null;
-    let timerSeconds = 1800;
+    let timerSeconds = 3600;
     let isTimerRunning = false;
-    let currentQuestions = [];
+    let generatedPagesData = [];
 
-    const questionBank = {
-      Mathematics: {
-        3: [
-          { type: 'mcq', q: 'What is the place value of 7 in 4,782?', opts: ['70', '700', '7', '7000'], m: 2 },
-          { type: 'mcq', q: 'Solve: 458 + 239 = ?', opts: ['697', '687', '797', '695'], m: 2 },
-          { type: 'short', q: 'A farmer has 124 apples. He buys 86 more. How many apples does he have in total?', m: 3 },
-          { type: 'short', q: 'Write the number name for 3,049 and state if it is even or odd.', m: 3 },
-          { type: 'word', q: 'An omnibus has 48 seats. If 3 full buses arrive at a museum, how many students are visiting?', m: 5 }
-        ],
-        4: [
-          { type: 'mcq', q: 'What is the product of 15 and 60?', opts: ['900', '850', '9000', '750'], m: 2 },
-          { type: 'mcq', q: 'Which fraction is equivalent to 2/4?', opts: ['1/3', '1/2', '3/4', '2/8'], m: 2 },
-          { type: 'short', q: 'Divide 456 by 4. Show your step-by-step working out.', m: 3 },
-          { type: 'short', q: 'Calculate the perimeter of a rectangle with length 12 cm and width 7 cm.', m: 3 },
-          { type: 'word', q: 'Sarah bought 3 notebooks for £4.50 each and a pen for £1.80. How much change does she get from a £20 note?', m: 5 }
-        ]
-      },
-      Science: {
-        3: [
-          { type: 'mcq', q: 'Which part of a plant absorbs water and nutrients from the soil?', opts: ['Leaves', 'Stem', 'Roots', 'Flower'], m: 2 },
-          { type: 'mcq', q: 'Which animal is classified as a herbivore?', opts: ['Lion', 'Cow', 'Eagle', 'Shark'], m: 2 },
-          { type: 'short', q: 'Name three basic things plants need to perform photosynthesis.', m: 3 },
-          { type: 'short', q: 'Explain the main difference between solids and liquids.', m: 3 },
-          { type: 'word', q: 'Describe the water cycle stage when water vapor turns back into liquid droplets to form clouds.', m: 5 }
-        ],
-        4: [
-          { type: 'mcq', q: 'Which organ pumps blood throughout the human body?', opts: ['Lungs', 'Brain', 'Heart', 'Stomach'], m: 2 },
-          { type: 'mcq', q: 'What state of matter is water vapor?', opts: ['Solid', 'Liquid', 'Gas', 'Plasma'], m: 2 },
-          { type: 'short', q: 'What is an ecosystem? Give one example of a land ecosystem.', m: 3 },
-          { type: 'short', q: 'Why do electrical conductors differ from insulators? Name one conductor.', m: 3 },
-          { type: 'word', q: 'Design a simple food chain containing a producer, a primary consumer, and a secondary consumer.', m: 5 }
-        ]
-      },
-      English: {
-        3: [
-          { type: 'mcq', q: 'Identify the proper noun in the sentence: "Lucy went to London."', opts: ['went', 'Lucy', 'to', 'girl'], m: 2 },
-          { type: 'mcq', q: 'What is the correct plural of "child"?', opts: ['Childs', 'Children', 'Childrens', 'Childes'], m: 2 },
-          { type: 'short', q: 'Rewrite the sentence using proper punctuation: "where are my red shoes asked tom"', m: 3 },
-          { type: 'short', q: 'Choose three adjectives to describe a stormy ocean.', m: 3 },
-          { type: 'word', q: 'Write a short paragraph (3-4 sentences) describing your favorite animal using at least two adverbs.', m: 5 }
-        ],
-        4: [
-          { type: 'mcq', q: 'Which word is a synonym for "enormous"?', opts: ['Tiny', 'Huge', 'Fast', 'Quiet'], m: 2 },
-          { type: 'mcq', q: 'Identify the conjunction: "We wanted to play outside, but it started raining."', opts: ['wanted', 'outside', 'but', 'raining'], m: 2 },
-          { type: 'short', q: 'Convert the following sentence to past continuous tense: "He plays football in the garden."', m: 3 },
-          { type: 'short', q: 'Underline the prepositional phrase: "The sneaky cat slept under the wooden porch."', m: 3 },
-          { type: 'word', q: 'Write a persuasive paragraph explaining why elementary schools should have longer break times.', m: 5 }
-        ]
-      }
-    };
+    // Helper Utilities
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const pickMultiple = (arr, n) => [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+
+    const names = ["Aarav", "Sophia", "Noah", "Ananya", "Liam", "Maya", "Oliver", "Zoe", "Kavya", "Ethan", "Fatima", "Lucas"];
+    const items = ["laptops", "books", "solar kits", "apples", "stamps", "science project gears", "planting pots", "marbles"];
+    const currencies = { CBSE: "₹", ICSE: "₹", British: "£", IB: "$" };
 
     function handleLogoUpload(event) {
       const file = event.target.files[0];
@@ -225,65 +163,298 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           logoDataUrl = e.target.result;
-          document.getElementById('paperLogo').src = logoDataUrl;
+          renderApp();
         };
         reader.readAsDataURL(file);
       }
     }
 
-    function generateNewQuestions() {
-      const subject = document.getElementById('subject').value;
-      const grade = document.getElementById('grade').value;
-      
-      const pool = questionBank[subject][grade] || [];
-      currentQuestions = [...pool].sort(() => Math.random() - 0.5);
-      renderPaper();
+    function onSubjectChange() {
+      const subj = document.getElementById('subject').value;
+      timerSeconds = subj === "Combined" ? 3600 : 2700;
+      resetTimer();
+      generateFreshExam();
     }
 
-    function renderPaper() {
-      document.getElementById('paperSchool').innerText = document.getElementById('schoolName').value || 'Primary Academy';
-      
+    // ==========================================
+    // EXTENDED SYLLABUS QUESTION ENGINE
+    // ==========================================
+
+    function generateMathBank(syl, gr, diff, count) {
+      const curr = currencies[syl] || "$";
+      const bank = [];
+
+      for (let i = 0; i < count; i++) {
+        const name1 = pick(names);
+        const name2 = pick(names);
+        const item = pick(items);
+        const type = i < Math.floor(count * 0.35) ? 'mcq' : (i < Math.floor(count * 0.7) ? 'short' : 'word');
+
+        if (diff === 'Easy') {
+          if (type === 'mcq') {
+            const a = gr === "3" ? rand(100, 999) : rand(1000, 9999);
+            const b = gr === "3" ? rand(100, 999) : rand(1000, 9999);
+            const ans = a + b;
+            bank.push({ type: 'mcq', q: `What is the sum of ${a} and ${b}?`, opts: [ans, ans + 10, ans - 100, ans + 5], m: 2 });
+          } else if (type === 'short') {
+            const num = rand(1000, 9999);
+            bank.push({ type: 'short', q: `Write ${num} in expanded notation and identify whether it is odd or even.`, m: 3 });
+          } else {
+            const a = rand(20, 50); const b = rand(15, 40);
+            bank.push({ type: 'word', q: `${name1} has ${a} ${item}. ${name2} gives ${name1} ${b} more ${item}. How many ${item} does ${name1} have in total?`, m: 4 });
+          }
+        } 
+        else if (diff === 'Medium') {
+          if (type === 'mcq') {
+            const mult1 = gr === "3" ? rand(12, 25) : rand(25, 99);
+            const mult2 = gr === "3" ? rand(4, 9) : rand(12, 25);
+            const ans = mult1 * mult2;
+            bank.push({ type: 'mcq', q: `Calculate: ${mult1} × ${mult2}`, opts: [ans, ans + mult1, ans - mult2, ans + 100], m: 2 });
+          } else if (type === 'short') {
+            const l = rand(8, 20); const w = rand(5, 12);
+            if (syl === "British" || syl === "IB") {
+              bank.push({ type: 'short', q: `A rectangle has a length of ${l} cm and a width of ${w} cm. Calculate both its perimeter and its area.`, m: 4 });
+            } else {
+              const div1 = rand(200, 900);
+              bank.push({ type: 'short', q: `Divide ${div1} by 6. Write down the quotient and the remainder.`, m: 4 });
+            }
+          } else {
+            const price = rand(15, 45); const qty = rand(4, 8); const paid = (price * qty) + rand(10, 50);
+            bank.push({ type: 'word', q: `${name1} bought ${qty} ${item} at ${curr}${price} each. If ${name1} handed the cashier ${curr}${paid}, how much change should be received? Show your step-by-step working out.`, m: 5 });
+          }
+        } 
+        else { // HARD / COMPLICATED MULTI-STEP PROBLEMS
+          if (type === 'mcq') {
+            const total = rand(120, 300);
+            const fracNum = 3; const fracDen = 4;
+            const ans = (total * fracNum) / fracDen;
+            bank.push({ type: 'mcq', q: `Find ${fracNum}/${fracDen} of ${total} ${item}.`, opts: [`${ans} ${item}`, `${ans - 15} ${item}`, `${ans + 20} ${item}`, `${ans / 2} ${item}`], m: 3 });
+          } else if (type === 'short') {
+            if (syl === "CBSE" || syl === "ICSE") {
+              const p = rand(40, 80); const l = rand(12, 25);
+              bank.push({ type: 'short', q: `Complicated Geometry Logic: The perimeter of a rectangle is ${p} cm. If its length is ${l} cm, find its width and then calculate its total area.`, m: 5 });
+            } else {
+              bank.push({ type: 'short', q: `Fraction Reasoning: ${name1} completed 2/5 of a science project on Saturday and 1/3 of it on Sunday. What fraction of the project remains incomplete?`, m: 5 });
+            }
+          } else {
+            const startH = rand(8, 10); const startM = pick([15, 30, 45]);
+            const durM = rand(135, 210);
+            bank.push({ type: 'word', q: `Multi-Step Time & Finance Problem: An educational robotics workshop started at ${startH}:${startM} AM and lasted ${durM} minutes. (a) At what exact time did the workshop end? (b) If each student was charged ${curr}${rand(12, 25)} per hour, calculate the total cost for 3 full hours.`, m: 6 });
+          }
+        }
+      }
+      return bank;
+    }
+
+    function generateScienceBank(syl, gr, diff, count) {
+      const bank = [];
+      const cbseConcepts = [
+        { q: "Which gas do green plants absorb during photosynthesis?", ans: "Carbon Dioxide", opts: ["Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"] },
+        { q: "Roots absorb water and nutrients, whereas leaves produce food using solar energy.", type: "short", text: "Explain the interdependence between plant roots and leaves in detail." },
+        { q: "Water conservation task: Describe three simple habits families can adopt to prevent water wastage at home.", type: "word" }
+      ];
+
+      const icseConcepts = [
+        { q: "In the human digestive system, where does major nutrient absorption occur?", ans: "Small Intestine", opts: ["Small Intestine", "Stomach", "Large Intestine", "Esophagus"] },
+        { q: "Differentiate clearly between physical changes and chemical changes with two real-life examples each.", type: "short" },
+        { q: "Energy Transformation: Trace the transformation of energy when a torch light powered by dry batteries is switched on.", type: "word" }
+      ];
+
+      const britishConcepts = [
+        { q: "Which material is an electrical insulator?", ans: "Plastic", opts: ["Plastic", "Copper", "Aluminum", "Iron"] },
+        { q: "Working Scientifically: ${name1} sets up a fair test to see which paper towel absorbs the most liquid. State one independent variable and two control variables.", type: "short" },
+        { q: "Friction Investigation: Explain why a toy car travels further on smooth tiles than on a thick woolen carpet.", type: "word" }
+      ];
+
+      const ibConcepts = [
+        { q: "An ecosystem consists of biotic and abiotic components interacting together.", ans: "True", opts: ["True", "False", "Only Biotic", "Only Abiotic"] },
+        { q: "Line of Inquiry: How does deforestation disrupt local food chains and impact global climate patterns?", type: "short" },
+        { q: "Action Plan: Propose a sustainable waste-reduction design for your school cafeteria using the 3Rs framework (Reduce, Reuse, Recycle).", type: "word" }
+      ];
+
+      let pool = syl === "CBSE" ? cbseConcepts : (syl === "ICSE" ? icseConcepts : (syl === "British" ? britishConcepts : ibConcepts));
+
+      for (let i = 0; i < count; i++) {
+        const item = pick(pool);
+        if (item.ans) {
+          bank.push({ type: 'mcq', q: item.q, opts: item.opts, m: 2 });
+        } else if (item.type === 'short') {
+          const name1 = pick(names);
+          bank.push({ type: 'short', q: item.text ? item.text : item.q.replace('${name1}', name1), m: 4 });
+        } else {
+          bank.push({ type: 'word', q: item.q, m: 5 });
+        }
+      }
+      return bank;
+    }
+
+    function generateEnglishBank(syl, gr, diff, count) {
+      const bank = [];
+      const passages = {
+        CBSE: "Raman loved visiting his grandparents' farm in the Western Ghats during monsoon season. The muddy paths were lined with glowing fireflies, and the streams overflowed with fresh rainwater. His grandmother taught him how indigenous trees retain groundwater and protect soil during heavy rain.",
+        ICSE: "The old library on the hill housed thousands of leather-bound manuscripts. Oliver carefully brushed away the layer of dust covering an ornate brass compass. To his surprise, the needle spun rapidly before pointing directly toward a hidden wooden panel behind the encyclopedia shelf.",
+        British: "Barnaby the barn owl glided silently over the misty meadow, his keen eyes scanning the tall grass for movement. Unlike most birds, owls have soft feather edges that muffle the sound of air passing over their wings, allowing them to hunt undetected under cover of darkness.",
+        IB: "Communities around the world rely on clean freshwater sources for agriculture, sanitation, and daily survival. However, pollution and climate shifts threaten these essential habitats. Young innovators are constructing solar-powered water purifiers to ensure equitable access for all."
+      };
+
+      const pText = passages[syl] || passages["IB"];
+      bank.push({ type: 'passage', text: pText });
+
+      for (let i = 0; i < count; i++) {
+        if (i < Math.floor(count * 0.35)) {
+          bank.push({
+            type: 'mcq',
+            q: `Grammar & Context: Identify the main theme or primary noun group highlighted in the ${syl} passage.`,
+            opts: ["Environmental conservation & nature", "Robotics and computing", "Urban transportation", "Space travel"],
+            m: 2
+          });
+        } else if (i < Math.floor(count * 0.7)) {
+          if (syl === "British" || syl === "ICSE") {
+            bank.push({
+              type: 'short',
+              q: `SPaG Task: Rewrite the following sentence adding a fronted adverbial and correct punctuation: "the owl flew silently through the dark forest"`,
+              m: 4
+            });
+          } else {
+            bank.push({
+              type: 'short',
+              q: `Vocabulary & Usage: Select two descriptive adjectives from the passage and use each in a original compound sentence.`,
+              m: 4
+            });
+          }
+        } else {
+          bank.push({
+            type: 'word',
+            q: `Extended Writing Prompt (Grade ${gr} - ${diff} Level): Write a structured narrative paragraph (6-8 sentences) continuing the story from the passage. Include at least two conjunctions, one direct speech dialogue, and underline your key adverbs.`,
+            m: 6
+          });
+        }
+      }
+      return bank;
+    }
+
+    function generateFreshExam() {
       const subj = document.getElementById('subject').value;
       const gr = document.getElementById('grade').value;
-      const syl = document.getElementById('syllabus').options[document.getElementById('syllabus').selectedIndex].text;
-      
-      document.getElementById('metaSubject').innerText = subj;
-      document.getElementById('metaGrade').innerText = gr;
-      document.getElementById('metaSyllabus').innerText = syl.split(' ')[0];
-      document.getElementById('paperTitle').innerText = `${subj} — ${syl} Assessment`;
+      const syl = document.getElementById('syllabus').value;
+      const diff = document.getElementById('difficulty').value;
 
-      const container = document.getElementById('questionContainer');
-      container.innerHTML = '';
+      generatedPagesData = [];
 
-      if (currentQuestions.length === 0) generateNewQuestions();
+      if (subj === "Combined") {
+        generatedPagesData.push({
+          pageNo: 1,
+          sectionTitle: `Section 1: Mathematics (${syl} Standard - ${diff})`,
+          questions: generateMathBank(syl, gr, diff, 6)
+        });
+        generatedPagesData.push({
+          pageNo: 2,
+          sectionTitle: `Section 2: Science & Environmental Inquiry (${syl} Standard)`,
+          questions: generateScienceBank(syl, gr, diff, 6)
+        });
+        generatedPagesData.push({
+          pageNo: 3,
+          sectionTitle: `Section 3: English Language & Comprehension (${syl} Standard)`,
+          questions: generateEnglishBank(syl, gr, diff, 5)
+        });
+      } else {
+        let bankFn = subj === "Mathematics" ? generateMathBank : (subj === "Science" ? generateScienceBank : generateEnglishBank);
 
-      let sectionA = '<div class="section-title">Section A: Multiple Choice Questions</div>';
-      let sectionB = '<div class="section-title">Section B: Short Answer & Reasoning</div>';
+        generatedPagesData.push({
+          pageNo: 1,
+          sectionTitle: `${subj} — Part A: Foundation, MCQs & Vocabulary (${diff})`,
+          questions: bankFn(syl, gr, diff, 6)
+        });
+        generatedPagesData.push({
+          pageNo: 2,
+          sectionTitle: `${subj} — Part B: Structured Reasoning & Calculations`,
+          questions: bankFn(syl, gr, diff, 6)
+        });
+        generatedPagesData.push({
+          pageNo: 3,
+          sectionTitle: `${subj} — Part C: Advanced Multi-Step Problems & Inquiry Tasks`,
+          questions: bankFn(syl, gr, diff, 5)
+        });
+      }
 
-      currentQuestions.forEach((q, index) => {
-        let qHtml = `<div class="question-item">
-          <div class="question-head">
-            <span>Q${index + 1}. ${q.q}</span>
-            <span>[${q.m} Marks]</span>
-          </div>`;
-
-        if (q.type === 'mcq') {
-          qHtml += `<div class="options-grid">
-            ${q.opts.map((opt, i) => `<div>(${String.fromCharCode(65 + i)}) ${opt}</div>`).join('')}
-          </div>`;
-        } else {
-          qHtml += `<div class="answer-space"></div>`;
-        }
-        
-        qHtml += `</div>`;
-
-        if (q.type === 'mcq') sectionA += qHtml;
-        else sectionB += qHtml;
-      });
-
-      container.innerHTML = sectionA + sectionB;
+      renderApp();
     }
 
+    function renderApp() {
+      const container = document.getElementById('pagesContainer');
+      container.innerHTML = '';
+
+      const schoolName = document.getElementById('schoolName').value || 'Primary Academy';
+      const subj = document.getElementById('subject').value;
+      const gr = document.getElementById('grade').value;
+      const syl = document.getElementById('syllabus').value;
+      const diff = document.getElementById('difficulty').value;
+      const defaultLogo = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>";
+
+      generatedPagesData.forEach((pageData) => {
+        const pageEl = document.createElement('div');
+        pageEl.className = 'a4-page';
+
+        let pageHtml = `
+          <div>
+            <div class="paper-header">
+              <img class="logo-preview" src="${logoDataUrl || defaultLogo}" alt="Logo">
+              <div class="header-text">
+                <h1>${schoolName}</h1>
+                <h3>${subj === 'Combined' ? '1-Hour Master Evaluation Paper' : subj + ' Master Assessment'}</h3>
+              </div>
+              <div style="width:60px;"></div>
+            </div>
+
+            <div class="meta-grid">
+              <div><strong>Student Name:</strong> ___________________________</div>
+              <div><strong>Date:</strong> ______________</div>
+              <div><strong>Grade:</strong> Grade ${gr} | <strong>Syllabus:</strong> ${syl} (${diff})</div>
+              <div><strong>Time Allowed:</strong> ${subj === 'Combined' ? '60 Mins' : '45 Mins'}</div>
+            </div>
+
+            <div class="section-title">${pageData.sectionTitle}</div>
+        `;
+
+        pageData.questions.forEach((q, idx) => {
+          if (q.type === 'passage') {
+            pageHtml += `<div class="passage-box"><strong>Reading Passage (${syl} Context):</strong><br>"${q.text}"</div>`;
+          } else {
+            pageHtml += `
+              <div class="question-item">
+                <div class="question-head">
+                  <span>Q${idx + 1}. ${q.q}</span>
+                  <span>[${q.m} Marks]</span>
+                </div>
+            `;
+
+            if (q.type === 'mcq') {
+              pageHtml += `<div class="options-grid">
+                ${q.opts.map((opt, i) => `<div>(${String.fromCharCode(65 + i)}) ${opt}</div>`).join('')}
+              </div>`;
+            } else if (q.type === 'short') {
+              pageHtml += `<div class="answer-lines"></div>`;
+            } else {
+              pageHtml += `<div class="answer-lines" style="min-height:75px;"></div>`;
+            }
+
+            pageHtml += `</div>`;
+          }
+        });
+
+        pageHtml += `
+          </div>
+          <div class="page-footer">
+            Page ${pageData.pageNo} of 3 — ${schoolName} • ${syl} Grade ${gr}
+          </div>
+        `;
+
+        pageEl.innerHTML = pageHtml;
+        container.appendChild(pageEl);
+      });
+    }
+
+    // Timer Engine
     function updateTimerDisplay() {
       const mins = Math.floor(timerSeconds / 60);
       const secs = timerSeconds % 60;
@@ -303,7 +474,7 @@
             updateTimerDisplay();
           } else {
             clearInterval(timerInterval);
-            alert("Exam Time is Up!");
+            alert("Exam Time Completed!");
           }
         }, 1000);
         btn.innerText = "Pause Timer";
@@ -314,12 +485,14 @@
     function resetTimer() {
       clearInterval(timerInterval);
       isTimerRunning = false;
-      timerSeconds = 1800;
+      const subj = document.getElementById('subject').value;
+      timerSeconds = subj === "Combined" ? 3600 : 2700;
       document.getElementById('timerBtn').innerText = "Start Timer";
       updateTimerDisplay();
     }
 
-    generateNewQuestions();
+    // Initialize
+    generateFreshExam();
   </script>
 </body>
 </html>
